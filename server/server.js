@@ -73,4 +73,5 @@ app.listen(PORT, () =>
     `Server running on port ${PORT}, mode: ${process.env.NODE_ENV || "development"}`
   )
 );
+console.log("Using Inngest key:", signingKey);
 
