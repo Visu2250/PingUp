@@ -37,7 +37,7 @@ dotenv.config();
 
 const app = express();
 
-// Connect MongoDB
+// Connect to MongoDB
 await connectDB();
 
 app.use(express.json());
@@ -46,10 +46,10 @@ app.use(cors());
 // Root route
 app.get("/", (req, res) => res.send("Server is running"));
 
-// Select signing key based on environment
+// Select correct signing key based on environment
 const signingKey =
   process.env.NODE_ENV === "production"
-    ? process.env.INNGEST_SIGNING_KEY_PROD?.trim() || process.env.INNGEST_SIGNING_KEY?.trim()
+    ? process.env.INNGEST_SIGNING_KEY_PROD?.trim()
     : process.env.INNGEST_SIGNING_KEY_DEV?.trim();
 
 if (!signingKey) {
@@ -66,10 +66,11 @@ app.use(
   })
 );
 
+// Start server
 const PORT = process.env.PORT || 4000;
-
 app.listen(PORT, () =>
   console.log(
     `Server running on port ${PORT}, mode: ${process.env.NODE_ENV || "development"}`
   )
 );
+
