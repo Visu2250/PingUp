@@ -49,11 +49,11 @@ app.get("/", (req, res) => res.send("Server is running"));
 // Select signing key based on environment
 const signingKey =
   process.env.NODE_ENV === "production"
-    ? process.env.INNGEST_SIGNING_KEY_PROD?.trim()
+    ? process.env.INNGEST_SIGNING_KEY_PROD?.trim() || process.env.INNGEST_SIGNING_KEY?.trim()
     : process.env.INNGEST_SIGNING_KEY_DEV?.trim();
 
 if (!signingKey) {
-  console.warn("⚠️ Inngest signing key not set!");
+  console.error("⚠️ Inngest signing key is not set!");
 }
 
 // Inngest endpoint
