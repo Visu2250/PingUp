@@ -116,4 +116,7 @@ const sendNewConnectionRequestReminder = inngest.createFunction(
 export const functions = [syncUserCreation, syncUserUpdation, syncUserDeletion ,sendNewConnectionRequestReminder];
 
 
-export default inngest
+export default serve({
+  client: inngest,
+  functions,
+});
