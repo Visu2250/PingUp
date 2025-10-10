@@ -1,8 +1,11 @@
 import express from "express";
 import {
+  acceptConnectionRequest,
   discoverUsers,
   followUser,
+  getUserConnections,
   getUserData,
+  sendConnectionRequest,
   unfollowUser,
   updateUserData,
 } from "../controllers/userController.js";
@@ -25,5 +28,10 @@ userRouter.post(
 userRouter.get("/discover", protect, discoverUsers);
 userRouter.get("/follow", protect, followUser);
 userRouter.get("/unfollow", protect, unfollowUser);
+userRouter.post("/connect", protect, sendConnectionRequest)
+userRouter.post("/accept", protect, acceptConnectionRequest)
+userRouter.get('/connections', protect, getUserConnections)
+
+
 
 export default userRouter;
