@@ -26,52 +26,39 @@
 
 
 
+import dotenv from "dotenv";
+dotenv.config(); // ✅ first line
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import connectDB from "./config/db.js";
-import {inngest, functions } from "./api/inngest.js";
 import { serve } from "inngest/express";
+import { clerkMiddleware } from "@clerk/express";
+import userRouter from "./routes/userRoutes.js";
 
-dotenv.config();
+import { inngest, functions } from "./api/inngest.js";
+import imagekit from "./config/imagekit.js"; // Adjust path if needed
+// console.log("ImageKit:", imagekit);
+
+
 
 const app = express();
-
-// Connect to MongoDB
 await connectDB();
 
 app.use(express.json());
 app.use(cors());
+app.use(clerkMiddleware());
 
-// Root route
 app.get("/", (req, res) => res.send("Server is running"));
 
-// Select correct signing key based on environment
-const signingKey =
-  process.env.NODE_ENV === "production"
-    ? process.env.INNGEST_SIGNING_KEY_PROD?.trim()
-    : process.env.INNGEST_SIGNING_KEY_DEV?.trim();
+app.use("/api/inngest", serve({ client: inngest, functions }));
+app.use('/api/user', userRouter);
 
-if (!signingKey) {
-  console.error("⚠️ Inngest signing key is not set!");
-}
 
-// Inngest endpoint
-app.use(
-  "/api/inngest",
-  serve({
-    client: inngest,
-    functions,
-    signingKey,
-  })
-);
-
-// Start server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () =>
-  console.log(
-    `Server running on port ${PORT}, mode: ${process.env.NODE_ENV || "development"}`
-  )
+  console.log(`Server running on port ${PORT}, mode: ${process.env.NODE_ENV || "development"}`)
 );
-console.log("Using Inngest key:", signingKey);
+
+
 
