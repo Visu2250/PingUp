@@ -1,6 +1,8 @@
 
+import inngest from "../api/inngest.js";
 import imagekit from "../config/imagekit.js";
 import Connection from "../models/Connection.js";
+import Post from "../models/Post.js";
 import User from "../models/User.js";
 import fs from 'fs';
 
@@ -197,6 +199,12 @@ export const sendConnectionRequest=async(req,res)=>{
                 from_user_id:userId,
                 to_user_id:id
             })
+            await inngest.send({
+                name:'app/connetion-request',
+                data:{connectionId: newConnection._id}
+            })
+
+
             return res.json({success:true, message:'Conneciton request sent successfully'})
 
         }else if(connection && connection.status=='accepted'){
@@ -220,7 +228,7 @@ export const getUserConnections=async(req,res)=>{
         const followers=user.followers
         const following=user.following
 
-        const pendingConnections=(await Connections.find({to_user_id:userId, status:'pending'}).populate('from_user_id')).map(connection=>connection.from_user_id)
+        const pendingConnections=(await Connection.find({to_user_id:userId, status:'pending'}).populate('from_user_id')).map(connection=>connection.from_user_id)
 
        res.json({success:true, connections, followers, following, pendingConnections})
 
@@ -260,3 +268,30 @@ export const acceptConnectionRequest=async(req,res)=>{
      res.json({success:false,message: error.message})
     }
 }
+
+
+// Get User Profile 
+
+export const getUserProfiles= async (req,res) => {
+    try{
+        const {profileId}=req.body;
+        const profile=await User.findById(profileId)
+        if(!profile){
+            return res.json({success:false, message: "profile not found"});
+
+        }
+        const posts=await Post.find({user: profileId}).populate('user')
+        res.json({success:true,profile, posts})
+
+        
+    }catch(error){
+        console.log(error);
+        res.json({success:false, message:error.message})
+    }
+    
+}
+
+
+
+
+

@@ -38,6 +38,9 @@ import userRouter from "./routes/userRoutes.js";
 
 import { inngest, functions } from "./api/inngest.js";
 import imagekit from "./config/imagekit.js"; // Adjust path if needed
+import postRouter from "./routes/postRoutes.js";
+import storyRouter from "./routes/storyRoutes.js";
+import messageRouter from "./routes/messageRoutes.js";
 // console.log("ImageKit:", imagekit);
 
 
@@ -53,6 +56,11 @@ app.get("/", (req, res) => res.send("Server is running"));
 
 app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use('/api/user', userRouter);
+app.use('/api/post', postRouter);
+app.use('/api/story', storyRouter);
+app.use('/api/message', messageRouter);
+
+
 
 
 const PORT = process.env.PORT || 4000;
