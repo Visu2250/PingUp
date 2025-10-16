@@ -74,14 +74,14 @@ import Discover from './pages/Discover.jsx';
 import Chatbox from './pages/Chatbox.jsx';
 
 import {useUser,useAuth} from '@clerk/clerk-react' 
-import Layout from './pages/layout';
+import Layout from './pages/Layout.jsx';
 import toast, { Toaster } from 'react-hot-toast';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchUser } from './feature/user/userSlice';
-import { fetchConnections } from './feature/connections/connectionsSlice';
-import { addMessage } from './feature/messages/messagesSlice';
-import Notification from './components/Notification';
+import { fetchUser } from './feature/user/userSlice.js';
+import { fetchConnections } from './feature/connections/connectionsSlice.js';
+import { addMessage } from './feature/messages/messagesSlice.js';
+import Notification from './components/Notification.jsx';
 
 
  
