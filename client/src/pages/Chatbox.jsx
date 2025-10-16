@@ -66,30 +66,205 @@
 
 
 
+// import React, { useEffect, useState, useRef } from 'react';
+// import { dummyMessagesData, dummyUserData } from '../assets/assets';
+// import { ImageIcon, SendHorizonal } from 'lucide-react';
+// import { useSelector } from 'react-redux';
+
+// const Chatbox = () => {
+//   const messages=useSelector((state)=>state.messages)
+//   const [text, setText] = useState('');
+//   const [image, setImage] = useState(null);
+//   const messagesEndRef = useRef(null);
+//   const user = dummyUserData;
+//   // const [messages, setMessages] = useState(dummyMessagesData);
+
+//   const sendMessage = async () => {
+//     // TODO: implement message sending logic
+//   };
+
+//   useEffect(() => {
+//     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+//   }, [messages]);
+
+//   return (
+//     <div className="flex flex-col h-screen">
+//       {/* Header */}
+//       <div className="flex items-center gap-2 p-2 md:px-10 xl:pl-42 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-300">
+//         <img src={user.profile_picture} alt="" className="size-8 rounded-full" />
+//         <div>
+//           <p className="font-medium">{user.full_name}</p>
+//           <p className="text-sm text-gray-500 -mt-1.5">@{user.username}</p>
+//         </div>
+//       </div>
+
+//       {/* Scrollable Messages */}
+//       <div className="flex-1 p-5 md:px-10 overflow-y-scroll">
+//         <div className="space-y-4 max-w-4xl mx-auto">
+//           {[...messages]
+//             .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+//             .map((message, index) => (
+//               <div
+//                 key={index}
+//                 className={`flex flex-col ${
+//                   message.to_user_id !== user?._id ? 'items-start' : 'items-end'
+//                 }`}
+//               >
+//                 <div
+//                   className={`p-2 text-sm max-w-sm bg-white text-slate-700 rounded-lg shadow ${
+//                     message.to_user_id !== user?._id
+//                       ? 'rounded-bl-none'
+//                       : 'rounded-br-none'
+//                   }`}
+//                 >
+//                   {message.message_type === 'image' && (
+//                     <img
+//                       src={message.media_url}
+//                       className="w-full max-w-sm rounded-lg mb-1"
+//                       alt=""
+//                     />
+//                   )}
+//                   <p>{message.text}</p>
+//                 </div>
+//               </div>
+//             ))}
+//           <div ref={messagesEndRef} />
+//         </div>
+//       </div>
+
+//       {/* Input Box - directly at bottom, no frame */}
+//       <div className="px-4 pb-4">
+//         <div className="flex items-center gap-3 pl-5 p-1.5 bg-white w-full max-w-xl mx-auto border border-gray-200 shadow rounded-full">
+//           <input
+//             type="text"
+//             className="flex-1 outline-none text-slate-700"
+//             placeholder="Type a message..."
+//             onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+//             onChange={(e) => setText(e.target.value)}
+//             value={text}
+//           />
+//           <label htmlFor="image">
+//             {image ? (
+//               <img
+//                 src={URL.createObjectURL(image)}
+//                 alt=""
+//                 className="h-8 rounded object-cover"
+//               />
+//             ) : (
+//               <ImageIcon className="size-7 text-gray-400 cursor-pointer" />
+//             )}
+//             <input
+//               type="file"
+//               id="image"
+//               accept="image/*"
+//               hidden
+//               onChange={(e) => setImage(e.target.files[0])}
+//             />
+//           </label>
+//           <button 
+//   onClick={sendMessage} 
+//   className='bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-800 active:scale-95 cursor-pointer text-white p-2 rounded-full'
+// >
+//   <SendHorizonal size={18}/>
+// </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Chatbox;
+
+
+
+
+
 import React, { useEffect, useState, useRef } from 'react';
-import { dummyMessagesData, dummyUserData } from '../assets/assets';
 import { ImageIcon, SendHorizonal } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { useAuth } from '@clerk/clerk-react';
+import { addMessage,fetchMessages, resetMessages } from '../feature/messages/messagesSlice';
+import toast from 'react-hot-toast';
+
 
 const Chatbox = () => {
+  const {messages} = useSelector((state) => state.messages);
+  const {userId}=useParams()
+  const {getToken}=useAuth()
+  const dispatch=useDispatch()
+
   const [text, setText] = useState('');
   const [image, setImage] = useState(null);
   const messagesEndRef = useRef(null);
-  const user = dummyUserData;
-  const [messages, setMessages] = useState(dummyMessagesData);
+  const [user, setUser]=useState(null)
 
-  const sendMessage = async () => {
-    // TODO: implement message sending logic
+  
+  const connections=useSelector((state)=>state.connections.connections)
+
+  const fetchUserMessages=async()=>{
+    try{
+      const token=await getToken()
+      dispatch(fetchMessages({token,userId}))
+    }catch(error){
+      toast.error(error.message)
+    }
+  }
+ 
+
+  const sendMessage = async() => {
+   try{
+    if(!text && !image) return
+    const token=await getToken()
+    const formData=new FormData();
+    formData.append('to_user_id', userId)
+    formData.append('text', text);
+    image && formData.append('image', image);
+    const {data}= await api.post('/api/message/send', formData,{
+      headers:{Authorization:`Bearer ${token}`}
+    })
+    if(data.success){
+      setText('')
+      setImage(null)
+      dispatch(addMessage(data.message))
+    }else{
+      throw new Error(data.message)
+    }
+
+   }catch(error){
+    toast.error(error.message)
+   }
   };
+
+  useEffect(()=>{
+    if(connections.length>0){
+      const user=connections.find(connection=>connection._id===userId)
+      setUser(user)
+    }
+  },[connections, userId])
+
+
+  useEffect(()=>{
+    fetchUserMessages()
+    return()=>{
+      dispatch(resetMessages())
+    }
+  },[userId])
+
+ 
+
+
+
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  return (
+  return user && (
     <div className="flex flex-col h-screen">
       {/* Header */}
       <div className="flex items-center gap-2 p-2 md:px-10 xl:pl-42 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-300">
-        <img src={user.profile_picture} alt="" className="size-8 rounded-full" />
+        <img src={user.profile_picture} alt="" className="w-8 h-8 rounded-full" />
         <div>
           <p className="font-medium">{user.full_name}</p>
           <p className="text-sm text-gray-500 -mt-1.5">@{user.username}</p>
@@ -105,14 +280,12 @@ const Chatbox = () => {
               <div
                 key={index}
                 className={`flex flex-col ${
-                  message.to_user_id !== user?._id ? 'items-start' : 'items-end'
+                  message.to_user_id !== user._id ? 'items-start' : 'items-end'
                 }`}
               >
                 <div
                   className={`p-2 text-sm max-w-sm bg-white text-slate-700 rounded-lg shadow ${
-                    message.to_user_id !== user?._id
-                      ? 'rounded-bl-none'
-                      : 'rounded-br-none'
+                    message.to_user_id !== user._id ? 'rounded-bl-none' : 'rounded-br-none'
                   }`}
                 >
                   {message.message_type === 'image' && (
@@ -130,7 +303,7 @@ const Chatbox = () => {
         </div>
       </div>
 
-      {/* Input Box - directly at bottom, no frame */}
+      {/* Input Box */}
       <div className="px-4 pb-4">
         <div className="flex items-center gap-3 pl-5 p-1.5 bg-white w-full max-w-xl mx-auto border border-gray-200 shadow rounded-full">
           <input
@@ -146,10 +319,10 @@ const Chatbox = () => {
               <img
                 src={URL.createObjectURL(image)}
                 alt=""
-                className="h-8 rounded object-cover"
+                className="h-8 w-8 rounded object-cover"
               />
             ) : (
-              <ImageIcon className="size-7 text-gray-400 cursor-pointer" />
+              <ImageIcon className="w-7 h-7 text-gray-400 cursor-pointer" />
             )}
             <input
               type="file"
@@ -159,12 +332,12 @@ const Chatbox = () => {
               onChange={(e) => setImage(e.target.files[0])}
             />
           </label>
-          <button 
-  onClick={sendMessage} 
-  className='bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-800 active:scale-95 cursor-pointer text-white p-2 rounded-full'
->
-  <SendHorizonal size={18}/>
-</button>
+          <button
+            onClick={sendMessage}
+            className="bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-purple-800 active:scale-95 cursor-pointer text-white p-2 rounded-full"
+          >
+            <SendHorizonal size={18} />
+          </button>
         </div>
       </div>
     </div>
@@ -172,4 +345,6 @@ const Chatbox = () => {
 };
 
 export default Chatbox;
+
+
 

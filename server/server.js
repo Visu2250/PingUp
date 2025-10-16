@@ -41,7 +41,11 @@ import imagekit from "./config/imagekit.js"; // Adjust path if needed
 import postRouter from "./routes/postRoutes.js";
 import storyRouter from "./routes/storyRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
-// console.log("ImageKit:", imagekit);
+
+
+
+
+console.log("ImageKit:", imagekit);
 
 
 
@@ -49,7 +53,10 @@ const app = express();
 await connectDB();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173", // ✅ only 
+  credentials: true,               // ✅ allow 
+}));
 app.use(clerkMiddleware());
 
 app.get("/", (req, res) => res.send("Server is running"));
@@ -63,10 +70,12 @@ app.use('/api/message', messageRouter);
 
 
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () =>
-  console.log(`Server running on port ${PORT}, mode: ${process.env.NODE_ENV || "development"}`)
-);
+const PORT = 4000; // Hardcode 4000
+app.listen(PORT, () => console.log(`Server running on port ${PORT}, mode: ${process.env.NODE_ENV || "development"}`));
+
+
+
+
 
 
 

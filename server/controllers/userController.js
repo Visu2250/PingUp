@@ -182,7 +182,7 @@ export const sendConnectionRequest=async(req,res)=>{
         const {userId}=req.auth()
         const {id}=req.body;
 
-        const last24Hours=new DataTransfer(DataTransfer.now()-24*60*60*1000)
+        const last24Hours=new Date(Date.now()-24*60*60*1000)
         const connecctionSchema=await Connection.find({from_user_id: userId, created_at:{$gt:last24Hours}})
         if(connecctionSchema.length>=20){
             return res.json({success:false, message:'You have sent more than 20 connection requests in the last 24 hours'})
@@ -190,8 +190,8 @@ export const sendConnectionRequest=async(req,res)=>{
         }
         const connection=await Connection.findOne({
             $or:[
-                {rom_user_id:userId, to_user_id:id},
-                {rom_user_id:id, to_user_id:userId},
+                {from_user_id:userId, to_user_id:id},
+                {from_user_id:id, to_user_id:userId},
             ]
         })
         if(!connection){
@@ -290,7 +290,6 @@ export const getUserProfiles= async (req,res) => {
     }
     
 }
-
 
 
 

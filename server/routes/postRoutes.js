@@ -5,6 +5,6 @@ import { addPost, getFeedPosts, likePost } from '../controllers/postController.j
 const postRouter=express.Router()
 
 postRouter.post('/add', upload.array('images',4),protect, addPost)
-postRouter.post('/feed',protect, getFeedPosts)
+postRouter.get('/feed',protect, getFeedPosts)
 postRouter.post('/feed',protect, likePost)
 export default postRouter
