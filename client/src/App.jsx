@@ -65,13 +65,13 @@
 import React, { useRef } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom';
 import Login from './pages/Login.jsx';
-import Feed from './pages/feed';
-import Messages from './pages/messages'
-import Connections from './pages/connections';
-import Profile from './pages/profile';
-import CreatePost from './pages/createpost';
-import Discover from './pages/Discover';
-import Chatbox from './pages/chatbox';
+import Feed from './pages/Feed.jsx';
+import Messages from './pages/Messages.jsx'
+import Connections from './pages/Connections.jsx';
+import Profile from './pages/Profile.jsx';
+import CreatePost from './pages/CreatePost.jsx';
+import Discover from './pages/Discover.jsx';
+import Chatbox from './pages/Chatbox.jsx';
 
 import {useUser,useAuth} from '@clerk/clerk-react' 
 import Layout from './pages/layout';
