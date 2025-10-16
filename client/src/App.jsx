@@ -64,7 +64,7 @@
 
 import React, { useRef } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom';
-import Login from './pages/login';
+import Login from './pages/Login.jsx';
 import Feed from './pages/feed';
 import Messages from './pages/messages'
 import Connections from './pages/connections';
@@ -82,6 +82,7 @@ import { fetchUser } from './feature/user/userSlice';
 import { fetchConnections } from './feature/connections/connectionsSlice';
 import { addMessage } from './feature/messages/messagesSlice';
 import Notification from './components/Notification';
+
 
  
 
